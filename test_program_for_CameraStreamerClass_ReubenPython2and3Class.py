@@ -6,23 +6,31 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision C, 05/21/2022
+Software Revision D, 07/16/2022
 
 Verified working on: Python 3.8 for Windows10 64-bit (no testing on Raspberry Pi or Mac testing yet).
 '''
 
 __author__ = 'reuben.brewer'
 
+#########################################################
 from CameraStreamerClass_ReubenPython2and3Class import *
 from MyPrint_ReubenPython2and3Class import *
+#########################################################
 
-import os, sys, platform
-import time, datetime
+#########################################################
+import os
+import sys
+import platform
+import time
+import datetime
 import threading
 import collections
 import numpy
+import argparse
+#########################################################
 
-###############
+#########################################################
 if sys.version_info[0] < 3:
     from Tkinter import * #Python 2
     import tkFont
@@ -31,22 +39,22 @@ else:
     from tkinter import * #Python 3
     import tkinter.font as tkFont #Python 3
     from tkinter import ttk
-###############
+#########################################################
 
-###############
+#########################################################
 if sys.version_info[0] < 3:
     from builtins import raw_input as input
 else:
     from future.builtins import input as input #"sudo pip3 install future" (Python 3) AND "sudo pip install future" (Python 2)
-###############
+#########################################################
 
-###############
+#########################################################
 import platform
 if platform.system() == "Windows":
     import ctypes
     winmm = ctypes.WinDLL('winmm')
     winmm.timeBeginPeriod(1) #Set minimum timer resolution to 1ms so that time.sleep(0.001) behaves properly.
-###############
+#########################################################
 
 ###########################################################################################################
 ##########################################################################################################
@@ -147,11 +155,11 @@ def GUI_Thread():
         #################################################
         TabControlObject = ttk.Notebook(root)
 
+        Tab_CAMERA = ttk.Frame(TabControlObject)
+        TabControlObject.add(Tab_CAMERA, text='   CAMERA   ')
+
         Tab_MainControls = ttk.Frame(TabControlObject)
         TabControlObject.add(Tab_MainControls, text='   Main Controls   ')
-
-        Tab_CAMERA = ttk.Frame(TabControlObject)
-        TabControlObject.add(Tab_CAMERA, text='   ENCODER   ')
 
         Tab_MyPrint = ttk.Frame(TabControlObject)
         TabControlObject.add(Tab_MyPrint, text='   MyPrint Terminal   ')
@@ -200,6 +208,23 @@ if __name__ == '__main__':
 
     #################################################
     #################################################
+    argparse_Object = argparse.ArgumentParser()
+    #nargs='?', const='arg_was_not_given' is the key to allowing us to not input an argument (use Pycharm "run")
+    argparse_Object.add_argument("-c", "--camera", nargs='?', const='arg_was_not_given', required=False, help="Camera number in the set [0, 1, ..., TotalNumberOfCameras]")
+    ARGV_Dict = vars(argparse_Object.parse_args())
+    print("ARGV_Dict: " + str(ARGV_Dict))
+
+    if ARGV_Dict["camera"] != None:
+        camera_selection_number = int(ARGV_Dict["camera"])
+    else:
+        camera_selection_number = 0
+
+    print("camera_selection_number: " + str(camera_selection_number))
+    #################################################
+    #################################################
+
+    #################################################
+    #################################################
     global my_platform
 
     if platform.system() == "Linux":
@@ -228,7 +253,7 @@ if __name__ == '__main__':
     USE_GUI_FLAG = 1
 
     global USE_TABS_IN_GUI_FLAG
-    USE_TABS_IN_GUI_FLAG = 0
+    USE_TABS_IN_GUI_FLAG = 1
 
     global USE_CAMERA_FLAG
     USE_CAMERA_FLAG = 1
@@ -294,10 +319,10 @@ if __name__ == '__main__':
     global root
 
     global root_Xpos
-    root_Xpos = 70
+    root_Xpos = 900
 
     global root_Ypos
-    root_Ypos = 0
+    root_Ypos = 70
 
     global root_width
     root_width = 1920 - root_Xpos
@@ -319,7 +344,7 @@ if __name__ == '__main__':
     #################################################
 
     #################################################
-    camera_selection_number = 0 #The camera number will be an integer in set [0, 1...NumberOfUSBcameraPluggedIn]
+    #camera_selection_number = 0 #The camera number will be an integer in set [0, 1...NumberOfUSBcameraPluggedIn]
     camera_frame_rate = 30
     image_width = 640#1280
     image_height = 480#720
@@ -342,6 +367,7 @@ if __name__ == '__main__':
     CAMERA_OPEN_FLAG = -1
 
     global CAMERA_MostRecentDict
+    CAMERA_MostRecentDict = dict()
 
     global CAMERA_MostRecentDict_OriginalImage
     CAMERA_MostRecentDict_OriginalImage = numpy.zeros((image_height, image_width, 3), numpy.uint8)
@@ -397,11 +423,14 @@ if __name__ == '__main__':
     global CameraStreamerClass_ReubenPython2and3ClassObject_setup_dict
     CameraStreamerClass_ReubenPython2and3ClassObject_setup_dict = dict([("GUIparametersDict", CameraStreamerClass_ReubenPython2and3ClassObject_GUIparametersDict),
                                                                         ("MainThread_TimeToSleepEachLoop", 0.030),
+                                                                        ("NameToDisplay_UserSet", "Reuben Camera Test"),
                                                                         ("camera_selection_number", camera_selection_number),
                                                                         ("camera_frame_rate", camera_frame_rate),
                                                                         ("image_width", image_width),
                                                                         ("image_height", image_height),
                                                                         ("image_jpg_encoding_quality", image_jpg_encoding_quality),
+                                                                        ("CameraSetting_Autofocus", 1),
+                                                                        ("CameraSetting_Autoexposure", 1),
                                                                         ("CameraSetting_exposure", CameraSetting_exposure),
                                                                         ("CameraSetting_gain", CameraSetting_gain),
                                                                         ("CameraSetting_brightness", CameraSetting_brightness),
@@ -486,7 +515,7 @@ if __name__ == '__main__':
         CurrentTime_MainLoopThread = getPreciseSecondsTimeStampString() - StartingTime_MainLoopThread
         ###################################################
 
-        ###################################################
+        ################################################### GET's
         if CAMERA_OPEN_FLAG == 1:
 
             CAMERA_MostRecentDict = CameraStreamerClass_ReubenPython2and3ClassObject.GetMostRecentDataDict()
