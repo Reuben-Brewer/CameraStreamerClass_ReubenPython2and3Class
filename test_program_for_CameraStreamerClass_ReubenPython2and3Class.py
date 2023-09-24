@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision G, 05/10/2023
+Software Revision H, 09/22/2023
 
 Verified working on: Python 3.8 for Windows10 64-bit (no testing on Raspberry Pi or Mac testing yet).
 '''
@@ -28,6 +28,7 @@ import threading
 import collections
 import numpy
 import argparse
+import json
 #########################################################
 
 #########################################################
@@ -49,7 +50,25 @@ if platform.system() == "Windows":
     winmm.timeBeginPeriod(1) #Set minimum timer resolution to 1ms so that time.sleep(0.001) behaves properly.
 #########################################################
 
-###########################################################################################################
+#########################################################
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+#########################################################
+
+#######################################################################################################################
+#######################################################################################################################
+global ParametersToBeLoaded_Directory_Windows
+ParametersToBeLoaded_Directory_Windows = os.getcwd().replace("\\", "//") + "//ParametersToBeLoaded"
+
+global ParametersToBeLoaded_Directory_LinuxNonRaspberryPi
+ParametersToBeLoaded_Directory_LinuxNonRaspberryPi = os.getcwd().replace("\\", "//") + "//ParametersToBeLoaded"
+
+global ParametersToBeLoaded_Directory_Mac
+ParametersToBeLoaded_Directory_Mac = os.getcwd().replace("\\", "//") + "//ParametersToBeLoaded"
+#######################################################################################################################
+#######################################################################################################################
+
+##########################################################################################################
 ##########################################################################################################
 def getPreciseSecondsTimeStampString():
     ts = time.time()
@@ -60,14 +79,142 @@ def getPreciseSecondsTimeStampString():
 
 ##########################################################################################################
 ##########################################################################################################
-def TestButtonResponse():
-    global MyPrint_ReubenPython2and3ClassObject
-    global USE_MYPRINT_FLAG
+def LoadAndParseJSONfile_CameraStreamerClass():
+    global ParametersToBeLoaded_CameraStreamerClass_Dict
 
-    if USE_MYPRINT_FLAG == 1:
-        MyPrint_ReubenPython2and3ClassObject.my_print("Test Button was Pressed!")
+    print("Calling LoadAndParseJSONfile_CameraStreamerClass().")
+
+    #################################
+    JSONfilepathFull_CameraStreamerClass = ParametersToBeLoaded_Directory_TO_BE_USED + "//ParametersToBeLoaded_CameraStreamerClass.json"
+
+    #def LoadAndParseJSONfile_AddDictKeysToGlobalsDict(GlobalsDict, JSONfilepathFull, USE_PassThrough0and1values_ExitProgramOtherwise_FORS = 0, PrintResultsFlag = 0):
+    ParametersToBeLoaded_CameraStreamerClass_Dict = LoadAndParseJSONfile_AddDictKeysToGlobalsDict(globals(), JSONfilepathFull_CameraStreamerClass, 1, 1)
+    #################################
+
+    return ParametersToBeLoaded_CameraStreamerClass_Dict
+
+##########################################################################################################
+##########################################################################################################
+
+##########################################################################################################
+##########################################################################################################
+def LoadAndParseJSONfile_AddDictKeysToGlobalsDict(GlobalsDict, JSONfilepathFull, USE_PassThrough0and1values_ExitProgramOtherwise_FOR_FLAGS = 0, PrintResultsFlag = 0):
+
+    try:
+        #################################
+
+        ##############
+        with open(JSONfilepathFull) as ParametersToBeLoaded_JSONfileObject:
+            ParametersToBeLoaded_JSONfileParsedIntoDict = json.load(ParametersToBeLoaded_JSONfileObject)
+
+        ParametersToBeLoaded_JSONfileObject.close()
+        ##############
+
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        ##############
+        for key, value in ParametersToBeLoaded_JSONfileParsedIntoDict.items():
+            if USE_PassThrough0and1values_ExitProgramOtherwise_FOR_FLAGS == 1:
+                if key.upper().find("_FLAG") != -1:
+                    GlobalsDict[key] = PassThrough0and1values_ExitProgramOtherwise(key, value)
+                else:
+                    GlobalsDict[key] = value
+            else:
+                GlobalsDict[key] = value
+
+            if PrintResultsFlag == 1:
+                print(key + ": " + str(value))
+
+        ##############
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+
+        return ParametersToBeLoaded_JSONfileParsedIntoDict
+        #################################
+    except:
+        #################################
+        exceptions = sys.exc_info()[0]
+        print("LoadAndParseJSONfile_Advanced Error, Exceptions: %s" % exceptions)
+        #traceback.print_exc()
+        return dict()
+        #################################
+
+##########################################################################################################
+##########################################################################################################
+
+##########################################################################################################
+##########################################################################################################
+def PassThrough0and1values_ExitProgramOtherwise(InputNameString, InputNumber):
+
+    try:
+        InputNumber_ConvertedToFloat = float(InputNumber)
+    except:
+        exceptions = sys.exc_info()[0]
+        print("PassThrough0and1values_ExitProgramOtherwise Error. InputNumber for variable_name '" + InputNameString + "' must be a float value, Exceptions: %s" % exceptions)
+        input("Press any key to continue")
+        sys.exit()
+
+    try:
+        if InputNumber_ConvertedToFloat == 0.0 or InputNumber_ConvertedToFloat == 1:
+            return InputNumber_ConvertedToFloat
+        else:
+            input("PassThrough0and1values_ExitProgramOtherwise Error. '" + InputNameString + "' must be 0 or 1 (value was " + str(InputNumber_ConvertedToFloat) + "). Press any key (and enter) to exit.")
+            sys.exit()
+    except:
+        exceptions = sys.exc_info()[0]
+        print("PassThrough0and1values_ExitProgramOtherwise Error, Exceptions: %s" % exceptions)
+        input("Press any key to continue")
+        sys.exit()
+##########################################################################################################
+##########################################################################################################
+
+##########################################################################################################
+##########################################################################################################
+def PassThroughFloatValuesInRange_ExitProgramOtherwise(InputNameString, InputNumber, RangeMinValue, RangeMaxValue):
+    try:
+        InputNumber_ConvertedToFloat = float(InputNumber)
+    except:
+        exceptions = sys.exc_info()[0]
+        print("PassThroughFloatValuesInRange_ExitProgramOtherwise Error. InputNumber must be a float value, Exceptions: %s" % exceptions)
+        input("Press any key to continue")
+        sys.exit()
+
+    try:
+        if InputNumber_ConvertedToFloat >= RangeMinValue and InputNumber_ConvertedToFloat <= RangeMaxValue:
+            return InputNumber_ConvertedToFloat
+        else:
+            input("PassThroughFloatValuesInRange_ExitProgramOtherwise Error. '" + InputNameString + "' must be in the range [" + str(RangeMinValue) + ", " + str(RangeMaxValue) + "] (value was " + str(InputNumber_ConvertedToFloat) + "). Press any key (and enter) to exit.")
+            sys.exit()
+    except:
+        exceptions = sys.exc_info()[0]
+        print("PassThroughFloatValuesInRange_ExitProgramOtherwise Error, Exceptions: %s" % exceptions)
+        input("Press any key to continue")
+        sys.exit()
+##########################################################################################################
+##########################################################################################################
+
+##########################################################################################################
+##########################################################################################################
+def GetMyPlatform():
+    my_platform = "other"
+
+    if platform.system() == "Linux":
+
+        if "raspberrypi" in platform.uname():  # os.uname() doesn't work in windows
+            my_platform = "pi"
+        else:
+            my_platform = "linux"
+
+    elif platform.system() == "Windows":
+        my_platform = "windows"
+
+    elif platform.system() == "Darwin":
+        my_platform = "mac"
+
     else:
-        print("Test Button was Pressed!")
+        my_platform = "other"
+
+    print("The OS platform is: " + my_platform)
+
+    return my_platform
 ##########################################################################################################
 ##########################################################################################################
 
@@ -124,10 +271,10 @@ def ExitProgram_Callback():
 ##########################################################################################################
 def GUI_Thread():
     global root
-    global root_Xpos
-    global root_Ypos
-    global root_width
-    global root_height
+    global Camera_RootIfLaunchedStandalone_Xpos
+    global Camera_RootIfLaunchedStandalone_Ypos
+    global Camera_RootIfLaunchedStandalone_width
+    global Camera_RootIfLaunchedStandalone_height
     global GUI_RootAfterCallbackInterval_Milliseconds
     global USE_TABS_IN_GUI_FLAG
 
@@ -174,15 +321,10 @@ def GUI_Thread():
     #################################################
     #################################################
 
-    #################################################
-    TestButton = Button(Tab_MainControls, text='Test Button', state="normal", width=20, command=lambda i=1: TestButtonResponse())
-    TestButton.grid(row=0, column=0, padx=5, pady=1)
-    #################################################
-
     ################################################# THIS BLOCK MUST COME 2ND-TO-LAST IN def GUI_Thread() IF USING TABS.
     root.protocol("WM_DELETE_WINDOW", ExitProgram_Callback)  # Set the callback function for when the window's closed.
     root.title("test_program_for_CameraStreamerClass_ReubenPython2and3Class")
-    root.geometry('%dx%d+%d+%d' % (root_width, root_height, root_Xpos, root_Ypos)) # set the dimensions of the screen and where it is placed
+    root.geometry('%dx%d+%d+%d' % (Camera_RootIfLaunchedStandalone_width, Camera_RootIfLaunchedStandalone_height, Camera_RootIfLaunchedStandalone_Xpos, Camera_RootIfLaunchedStandalone_Ypos)) # set the dimensions of the screen and where it is placed
     root.after(GUI_RootAfterCallbackInterval_Milliseconds, GUI_update_clock)
     root.mainloop()
     #################################################
@@ -199,45 +341,145 @@ def GUI_Thread():
 ##########################################################################################################
 if __name__ == '__main__':
 
+    ################################################
+    ################################################
+    global my_platform
+    global ParametersToBeLoaded_Directory_TO_BE_USED
+
+    my_platform = GetMyPlatform()
+
+    if my_platform == "windows":
+        ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_Windows
+
+    elif my_platform == "linux":
+        ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_LinuxNonRaspberryPi
+
+    elif my_platform == "mac":
+        ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_Mac
+
+    else:
+        "test_program_for_CameraStreamerClass_ReubenPython2and3Class.py: ERROR, OS must be Windows, LinuxNonRaspberryPi, or Mac!"
+        ExitProgram_Callback()
+
+    print("ParametersToBeLoaded_Directory_TO_BE_USED: " + ParametersToBeLoaded_Directory_TO_BE_USED)
+    ################################################
+    ################################################
+
+    ##################################################
+    #################################################
+    global camera_selection_number
+    global camera_TkinterPreviewImageScalingFactor
+    global camera_Dshow_EnglishName
+    global CameraCaptureThread_TimeToSleepEachLoop
+    global CameraEncodeThread_TimeToSleepEachLoop
+    global ImageSavingThread_TimeToSleepEachLoop
+    global camera_frame_rate
+    global image_width
+    global image_height
+    global image_jpg_encoding_quality
+    global CameraSetting_Autofocus
+    global CameraSetting_Autoexposure
+    global CameraSetting_exposure
+    global CameraSetting_gain
+    global CameraSetting_brightness
+    global CameraSetting_contrast
+    global CameraSetting_saturation
+    global CameraSetting_hue
+    global EnableCameraEncodeThreadFlag
+    global EnableImageSavingThreadFlag
+    global RemoveFisheyeDistortionFromImage_Flag
+    global ShowOpenCVwindowsFlag
+    global OpenCVwindowPosX
+    global OpenCVwindowPosY
+    global OpenCVwindow_UpdateEveryNmilliseconds
+    global OpenCVbackendToUseEnglishName
+    global Camera_SavedImages_FilenamePrefix
+    global Camera_SavedImages_LocalDirectoryNameNoSlashes
+    global Camera_RootIfLaunchedStandalone_Xpos
+    global Camera_RootIfLaunchedStandalone_Ypos
+    global Camera_RootIfLaunchedStandalone_width
+    global Camera_RootIfLaunchedStandalone_height
+    #################################################
+    #################################################
+
     #################################################
     #################################################
     argparse_Object = argparse.ArgumentParser()
     #nargs='?', const='arg_was_not_given' is the key to allowing us to not input an argument (use Pycharm "run")
     argparse_Object.add_argument("-c", "--camera", nargs='?', const='arg_was_not_given', required=False, help="Camera number in the set [0, 1, ..., TotalNumberOfCameras]")
+    argparse_Object.add_argument("-p", "--parametersfile", nargs='?', const='arg_was_not_given', required=False, help="Must pass the directory path of ParametersToBeLoaded_CameraStreamerClass.json")
     ARGV_Dict = vars(argparse_Object.parse_args())
     print("ARGV_Dict: " + str(ARGV_Dict))
 
+    #################################################
+    global parametersfile
+    parametersfile = ""
+    if ARGV_Dict["parametersfile"] != None:
+        ParametersToBeLoaded_Directory_TO_BE_USED = str(ARGV_Dict["parametersfile"])
+        print("GOAT")
+    else:
+        ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_TO_BE_USED
+
+    print("ParametersToBeLoaded_Directory_TO_BE_USED: " + str(ParametersToBeLoaded_Directory_TO_BE_USED))
+    #################################################
+
+    #################################################
+    #################################################
+
+    #################################################
+    #################################################
+    ReturnedDict = LoadAndParseJSONfile_CameraStreamerClass()
+    print("ReturnedDict: " + str(ReturnedDict))
+
+    if len(ReturnedDict) == 0:
+        ################################################# CNA HARD-WIRE THE VALUES HERE WITHOUT USING AN INPUT FILE
+        camera_TkinterPreviewImageScalingFactor =  0.70
+        camera_selection_number =  0
+        camera_Dshow_EnglishName  = ""
+        CameraCaptureThread_TimeToSleepEachLoop = 0.030
+        CameraEncodeThread_TimeToSleepEachLoop = 0.030
+        ImageSavingThread_TimeToSleepEachLoop = 0.030
+        camera_frame_rate = 30
+        image_width = 640
+        image_height = 480
+        image_jpg_encoding_quality = 100
+        CameraSetting_Autofocus = 0
+        CameraSetting_Autoexposure = 0
+        CameraSetting_exposure = -10
+        CameraSetting_gain = 0
+        CameraSetting_brightness = 0
+        CameraSetting_contrast = 255
+        CameraSetting_saturation = 50
+        CameraSetting_hue = 0
+        EnableCameraEncodeThreadFlag = 1
+        EnableImageSavingThreadFlag = 1
+        RemoveFisheyeDistortionFromImage_Flag = 0
+        OpenCVwindow_UpdateEveryNmilliseconds = 30
+        OpenCVbackendToUseEnglishName = "CAP_MSMF"
+        Camera_SavedImages_LocalDirectoryNameNoSlashes =  "SavedImages"
+        Camera_SavedImages_FilenamePrefix =  "Camera_"
+        Camera_RootIfLaunchedStandalone_Xpos = 0
+        Camera_RootIfLaunchedStandalone_Ypos = 0
+        Camera_RootIfLaunchedStandalone_width = 1000
+        Camera_RootIfLaunchedStandalone_height = 1000
+        CameraCalibrationParametersDict = dict([("fx", 532.972485),
+                                                    ("fy", 532.972485),
+                                                    ("cx", 320.000000),
+                                                    ("cy", 240.000000),
+                                                    ("k1", -1.105115),
+                                                    ("k2", 1.372161),
+                                                    ("p1", -0.001400),
+                                                    ("p2", -0.021523)])
+        #################################################
+
+    #################################################
+    #################################################
+
+    ################################################# PUTTING THIS AFTER EVERYTHING SO THAT WE CAN OVERRIDE -P FILE OPTIONS
     if ARGV_Dict["camera"] != None:
         camera_selection_number = int(ARGV_Dict["camera"])
-    else:
-        camera_selection_number = 0
 
     print("camera_selection_number: " + str(camera_selection_number))
-    #################################################
-    #################################################
-
-    #################################################
-    #################################################
-    global my_platform
-
-    if platform.system() == "Linux":
-
-        if "raspberrypi" in platform.uname():  # os.uname() doesn't work in windows
-            my_platform = "pi"
-        else:
-            my_platform = "linux"
-
-    elif platform.system() == "Windows":
-        my_platform = "windows"
-
-    elif platform.system() == "Darwin":
-        my_platform = "mac"
-
-    else:
-        my_platform = "other"
-
-    print("The OS platform is: " + my_platform)
-    #################################################
     #################################################
 
     #################################################
@@ -303,25 +545,13 @@ if __name__ == '__main__':
     global EXIT_PROGRAM_FLAG
     EXIT_PROGRAM_FLAG = 0
 
+    global root
+
     global CurrentTime_MainLoopThread
     CurrentTime_MainLoopThread = -11111.0
 
     global StartingTime_MainLoopThread
     StartingTime_MainLoopThread = -11111.0
-
-    global root
-
-    global root_Xpos
-    root_Xpos = 900
-
-    global root_Ypos
-    root_Ypos = 70
-
-    global root_width
-    root_width = 1920 - root_Xpos
-
-    global root_height
-    root_height = 1020 - root_Ypos
 
     global TabControlObject
     global Tab_MainControls
@@ -337,35 +567,6 @@ if __name__ == '__main__':
     #################################################
 
     #################################################
-    #LET ARGV FIGURE THIS OUT camera_selection_number = 0 #The camera number will be an integer in set [0, 1...NumberOfUSBcameraPluggedIn]
-    camera_frame_rate = 30
-    image_width = 640#640#1280#1920
-    image_height = 480#480#720#1080
-    image_jpg_encoding_quality = 25
-    CameraSetting_Autofocus = 0
-    CameraSetting_Autoexposure = 1
-    CameraSetting_exposure = -7
-    CameraSetting_gain = 100
-    CameraSetting_brightness = 75
-    CameraSetting_contrast = 32
-    CameraSetting_saturation = 60
-    CameraSetting_hue = 0
-    DrawCircleAtImageCenterFlag = 0
-    EnableCameraEncodeThreadFlag = 1
-    EnableImageSavingThreadFlag = 1
-    RemoveFisheyeDistortionFromImage_Flag = 0
-    CameraCalibrationParametersDict = dict([("fx", 532.972485),
-                                                ("fy", 532.972485),
-                                                ("cx", 320.000000),
-                                                ("cy", 240.000000),
-                                                ("k1", -1.105115),
-                                                ("k2", 1.372161),
-                                                ("p1", -0.001400),
-                                                ("p2", -0.021523)])
-    TkinterPreviewImageScalingFactor = 1.0
-    #################################################
-
-    #################################################
     global CameraStreamerClass_ReubenPython2and3ClassObject
 
     global CameraStreamerClass_OPEN_FLAG
@@ -375,7 +576,7 @@ if __name__ == '__main__':
     CameraStreamerClass_MostRecentDict = dict()
 
     global CameraStreamerClass_MostRecentDict_OriginalImage
-    CameraStreamerClass_MostRecentDict_OriginalImage = numpy.zeros((image_height, image_width, 3), numpy.uint8)
+    #CameraStreamerClass_MostRecentDict_OriginalImage = numpy.zeros((image_height, image_width, 3), numpy.uint8)
 
     global CameraStreamerClass_MostRecentDict_Time
     CameraStreamerClass_MostRecentDict_Time = -11111.0
@@ -426,12 +627,12 @@ if __name__ == '__main__':
 
     global CameraStreamerClass_ReubenPython2and3ClassObject_setup_dict
     CameraStreamerClass_ReubenPython2and3ClassObject_setup_dict = dict([("GUIparametersDict", CameraStreamerClass_ReubenPython2and3ClassObject_GUIparametersDict),
-                                                                        ("CameraCaptureThread_TimeToSleepEachLoop", 0.001),
-                                                                        ("CameraEncodeThread_TimeToSleepEachLoop", 0.001),
-                                                                        ("ImageSavingThread_TimeToSleepEachLoop", 0.001),
-                                                                        ("NameToDisplay_UserSet", "Reuben Camera Test"),
-                                                                        ("TkinterPreviewImageScalingFactor", TkinterPreviewImageScalingFactor), #percent size of the image that will be displayed within Tkinter.
+                                                                        ("NameToDisplay_UserSet", "Camera"),
+                                                                        ("TkinterPreviewImageScalingFactor", camera_TkinterPreviewImageScalingFactor),
                                                                         ("camera_selection_number", camera_selection_number),
+                                                                        ("CameraCaptureThread_TimeToSleepEachLoop", CameraCaptureThread_TimeToSleepEachLoop),
+                                                                        ("CameraEncodeThread_TimeToSleepEachLoop", CameraEncodeThread_TimeToSleepEachLoop),
+                                                                        ("ImageSavingThread_TimeToSleepEachLoop", ImageSavingThread_TimeToSleepEachLoop),
                                                                         ("camera_frame_rate", camera_frame_rate),
                                                                         ("image_width", image_width),
                                                                         ("image_height", image_height),
@@ -444,12 +645,15 @@ if __name__ == '__main__':
                                                                         ("CameraSetting_contrast", CameraSetting_contrast),
                                                                         ("CameraSetting_saturation", CameraSetting_saturation),
                                                                         ("CameraSetting_hue", CameraSetting_hue),
-                                                                        ("DrawCircleAtImageCenterFlag", DrawCircleAtImageCenterFlag),
                                                                         ("EnableCameraEncodeThreadFlag", EnableCameraEncodeThreadFlag),
                                                                         ("EnableImageSavingThreadFlag", EnableImageSavingThreadFlag),
-                                                                        ("OpenCVbackendToUseEnglishName","CAP_MSMF"),#CAP_MSMF CAP_DSHOW CAP_ANY
                                                                         ("RemoveFisheyeDistortionFromImage_Flag", RemoveFisheyeDistortionFromImage_Flag),
-                                                                        ("CameraCalibrationParametersDict", CameraCalibrationParametersDict)])
+                                                                        ("OpenCVbackendToUseEnglishName", OpenCVbackendToUseEnglishName),
+                                                                        ("Camera_SavedImages_FilenamePrefix", Camera_SavedImages_FilenamePrefix),
+                                                                        ("Camera_SavedImages_LocalDirectoryNameNoSlashes", Camera_SavedImages_LocalDirectoryNameNoSlashes)])
+
+                                                                        #("RemoveFisheyeDistortionFromImage_Flag", RemoveFisheyeDistortionFromImage_Flag),
+                                                                        #("CameraCalibrationParametersDict", CameraCalibrationParametersDict)
 
     if USE_CameraStreamerClass_FLAG == 1:
         try:
