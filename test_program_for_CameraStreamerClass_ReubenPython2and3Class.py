@@ -6,9 +6,9 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision H, 09/22/2023
+Software Revision I, 02/02/2025
 
-Verified working on: Python 3.8 for Windows10 64-bit (no testing on Raspberry Pi or Mac testing yet).
+Verified working on: Python 3.12 for Windows 11 64-bit and Raspberry Pi Bullseye (Backend = "CAP_ANY", Camera = ELP USB).
 '''
 
 __author__ = 'reuben.brewer'
@@ -29,6 +29,7 @@ import collections
 import numpy
 import argparse
 import json
+import keyboard
 #########################################################
 
 #########################################################
@@ -63,6 +64,9 @@ ParametersToBeLoaded_Directory_Windows = os.getcwd().replace("\\", "//") + "//Pa
 global ParametersToBeLoaded_Directory_LinuxNonRaspberryPi
 ParametersToBeLoaded_Directory_LinuxNonRaspberryPi = os.getcwd().replace("\\", "//") + "//ParametersToBeLoaded"
 
+global ParametersToBeLoaded_Directory_LinuxRaspberryPi
+ParametersToBeLoaded_Directory_LinuxRaspberryPi = "//home//pinis//Desktop//CameraStreamerClass_ReubenPython2and3Class_PythonDeploymentFiles//ParametersToBeLoaded"
+
 global ParametersToBeLoaded_Directory_Mac
 ParametersToBeLoaded_Directory_Mac = os.getcwd().replace("\\", "//") + "//ParametersToBeLoaded"
 #######################################################################################################################
@@ -96,9 +100,9 @@ def LoadAndParseJSONfile_CameraStreamerClass():
 ##########################################################################################################
 ##########################################################################################################
 
-##########################################################################################################
-##########################################################################################################
-def LoadAndParseJSONfile_AddDictKeysToGlobalsDict(GlobalsDict, JSONfilepathFull, USE_PassThrough0and1values_ExitProgramOtherwise_FOR_FLAGS = 0, PrintResultsFlag = 0):
+#######################################################################################################################
+#######################################################################################################################
+def LoadAndParseJSONfile_AddDictKeysToGlobalsDict(GlobalsDict, JSONfilepathFull, USE_PassThrough0and1values_ExitProgramOtherwise_FOR_FLAGS = 0, PrintResultsFlag = 0, PauseForInputOnException = 1):
 
     try:
         #################################
@@ -132,64 +136,191 @@ def LoadAndParseJSONfile_AddDictKeysToGlobalsDict(GlobalsDict, JSONfilepathFull,
     except:
         #################################
         exceptions = sys.exc_info()[0]
-        print("LoadAndParseJSONfile_Advanced Error, Exceptions: %s" % exceptions)
-        #traceback.print_exc()
+        print("LoadAndParseJSONfile_AddDictKeysToGlobalsDict failed for " + JSONfilepathFull + ", Current Key = " + key + ", exceptions: %s" % exceptions)
+        traceback.print_exc()
+
+        if PauseForInputOnException == 1:
+            input("Please press any key to continue")
+
         return dict()
         #################################
 
-##########################################################################################################
-##########################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
-##########################################################################################################
-##########################################################################################################
-def PassThrough0and1values_ExitProgramOtherwise(InputNameString, InputNumber):
+#######################################################################################################################
+#######################################################################################################################
+def TellWhichFileWereIn():
+    # We used to use this method, but it gave us the root calling file, not the class calling file
+    # absolute_file_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    # filename = absolute_file_path[absolute_file_path.rfind("\\") + 1:]
 
+    frame = inspect.stack()[1]
+    filename = frame[1][frame[1].rfind("\\") + 1:]
+    filename = filename.replace(".py", "")
+
+    return filename
+#######################################################################################################################
+#######################################################################################################################
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+def PassThrough0and1values_ExitProgramOtherwise(InputNameString, InputNumber, ExitProgramIfFailureFlag = 0):
+
+    #######################################################################################################################
+    #######################################################################################################################
     try:
+
+        #######################################################################################################################
         InputNumber_ConvertedToFloat = float(InputNumber)
-    except:
-        exceptions = sys.exc_info()[0]
-        print("PassThrough0and1values_ExitProgramOtherwise Error. InputNumber for variable_name '" + InputNameString + "' must be a float value, Exceptions: %s" % exceptions)
-        input("Press any key to continue")
-        sys.exit()
+        #######################################################################################################################
 
-    try:
-        if InputNumber_ConvertedToFloat == 0.0 or InputNumber_ConvertedToFloat == 1:
-            return InputNumber_ConvertedToFloat
-        else:
-            input("PassThrough0and1values_ExitProgramOtherwise Error. '" + InputNameString + "' must be 0 or 1 (value was " + str(InputNumber_ConvertedToFloat) + "). Press any key (and enter) to exit.")
+    except:
+
+        #######################################################################################################################
+        exceptions = sys.exc_info()[0]
+        print(TellWhichFileWereIn() + ", PassThrough0and1values_ExitProgramOtherwise Error. InputNumber '" + InputNameString + "' must be a numerical value, Exceptions: %s" % exceptions)
+
+        ##########################
+        if ExitProgramIfFailureFlag == 1:
             sys.exit()
-    except:
-        exceptions = sys.exc_info()[0]
-        print("PassThrough0and1values_ExitProgramOtherwise Error, Exceptions: %s" % exceptions)
-        input("Press any key to continue")
-        sys.exit()
-##########################################################################################################
-##########################################################################################################
+        else:
+            return -1
+        ##########################
 
-##########################################################################################################
-##########################################################################################################
-def PassThroughFloatValuesInRange_ExitProgramOtherwise(InputNameString, InputNumber, RangeMinValue, RangeMaxValue):
+        #######################################################################################################################
+
+    #######################################################################################################################
+    #######################################################################################################################
+
+    #######################################################################################################################
+    #######################################################################################################################
     try:
+
+        #######################################################################################################################
+        if InputNumber_ConvertedToFloat == 0.0 or InputNumber_ConvertedToFloat == 1.0:
+            return InputNumber_ConvertedToFloat
+
+        else:
+
+            print(TellWhichFileWereIn() + ", PassThrough0and1values_ExitProgramOtherwise Error. '" +
+                          str(InputNameString) +
+                          "' must be 0 or 1 (value was " +
+                          str(InputNumber_ConvertedToFloat) +
+                          "). Press any key (and enter) to exit.")
+
+            ##########################
+            if ExitProgramIfFailureFlag == 1:
+                sys.exit()
+
+            else:
+                return -1
+            ##########################
+
+        #######################################################################################################################
+
+    except:
+
+        #######################################################################################################################
+        exceptions = sys.exc_info()[0]
+        print(TellWhichFileWereIn() + ", PassThrough0and1values_ExitProgramOtherwise Error, Exceptions: %s" % exceptions)
+
+        ##########################
+        if ExitProgramIfFailureFlag == 1:
+            sys.exit()
+        else:
+            return -1
+        ##########################
+
+        #######################################################################################################################
+
+    #######################################################################################################################
+    #######################################################################################################################
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+def PassThroughFloatValuesInRange_ExitProgramOtherwise(InputNameString, InputNumber, RangeMinValue, RangeMaxValue, ExitProgramIfFailureFlag = 0):
+
+    #######################################################################################################################
+    #######################################################################################################################
+    try:
+        #######################################################################################################################
         InputNumber_ConvertedToFloat = float(InputNumber)
-    except:
-        exceptions = sys.exc_info()[0]
-        print("PassThroughFloatValuesInRange_ExitProgramOtherwise Error. InputNumber must be a float value, Exceptions: %s" % exceptions)
-        input("Press any key to continue")
-        sys.exit()
+        #######################################################################################################################
 
-    try:
-        if InputNumber_ConvertedToFloat >= RangeMinValue and InputNumber_ConvertedToFloat <= RangeMaxValue:
-            return InputNumber_ConvertedToFloat
-        else:
-            input("PassThroughFloatValuesInRange_ExitProgramOtherwise Error. '" + InputNameString + "' must be in the range [" + str(RangeMinValue) + ", " + str(RangeMaxValue) + "] (value was " + str(InputNumber_ConvertedToFloat) + "). Press any key (and enter) to exit.")
-            sys.exit()
     except:
+        #######################################################################################################################
         exceptions = sys.exc_info()[0]
-        print("PassThroughFloatValuesInRange_ExitProgramOtherwise Error, Exceptions: %s" % exceptions)
-        input("Press any key to continue")
-        sys.exit()
-##########################################################################################################
-##########################################################################################################
+        print(TellWhichFileWereIn() + ", PassThroughFloatValuesInRange_ExitProgramOtherwise Error. InputNumber '" + InputNameString + "' must be a float value, Exceptions: %s" % exceptions)
+        traceback.print_exc()
+
+        ##########################
+        if ExitProgramIfFailureFlag == 1:
+            sys.exit()
+        else:
+            return -11111.0
+        ##########################
+
+        #######################################################################################################################
+
+    #######################################################################################################################
+    #######################################################################################################################
+
+    #######################################################################################################################
+    #######################################################################################################################
+    try:
+
+        #######################################################################################################################
+        InputNumber_ConvertedToFloat_Limited = LimitNumber_FloatOutputOnly(RangeMinValue, RangeMaxValue, InputNumber_ConvertedToFloat)
+
+        if InputNumber_ConvertedToFloat_Limited != InputNumber_ConvertedToFloat:
+            print(TellWhichFileWereIn() + ", PassThroughFloatValuesInRange_ExitProgramOtherwise Error. '" +
+                  str(InputNameString) +
+                  "' must be in the range [" +
+                  str(RangeMinValue) +
+                  ", " +
+                  str(RangeMaxValue) +
+                  "] (value was " +
+                  str(InputNumber_ConvertedToFloat) + ")")
+
+            ##########################
+            if ExitProgramIfFailureFlag == 1:
+                sys.exit()
+            else:
+                return -11111.0
+            ##########################
+
+        else:
+            return InputNumber_ConvertedToFloat_Limited
+        #######################################################################################################################
+
+    except:
+        #######################################################################################################################
+        exceptions = sys.exc_info()[0]
+        print(TellWhichFileWereIn() + ", PassThroughFloatValuesInRange_ExitProgramOtherwise Error, Exceptions: %s" % exceptions)
+        traceback.print_exc()
+
+        ##########################
+        if ExitProgramIfFailureFlag == 1:
+            sys.exit()
+        else:
+            return -11111.0
+        ##########################
+
+        #######################################################################################################################
+
+    #######################################################################################################################
+    #######################################################################################################################
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
 ##########################################################################################################
 ##########################################################################################################
@@ -231,8 +362,8 @@ def GUI_update_clock():
     global SHOW_IN_GUI_CameraStreamerClass_FLAG
 
     global MyPrint_ReubenPython2and3ClassObject
-    global MYPRINT_OPEN_FLAG
-    global SHOW_IN_GUI_MYPRINT_FLAG
+    global MyPrint_OPEN_FLAG
+    global SHOW_IN_GUI_MyPrint_FLAG
 
     if USE_GUI_FLAG == 1:
         if EXIT_PROGRAM_FLAG == 0:
@@ -245,7 +376,7 @@ def GUI_update_clock():
             #########################################################
 
             #########################################################
-            if MYPRINT_OPEN_FLAG == 1 and SHOW_IN_GUI_MYPRINT_FLAG == 1:
+            if MyPrint_OPEN_FLAG == 1 and SHOW_IN_GUI_MyPrint_FLAG == 1:
                 MyPrint_ReubenPython2and3ClassObject.GUI_update_clock()
             #########################################################
 
@@ -258,7 +389,7 @@ def GUI_update_clock():
 
 ##########################################################################################################
 ##########################################################################################################
-def ExitProgram_Callback():
+def ExitProgram_Callback(OptionalArugment = 0):
     global EXIT_PROGRAM_FLAG
 
     print("ExitProgram_Callback event fired!")
@@ -354,6 +485,9 @@ if __name__ == '__main__':
     elif my_platform == "linux":
         ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_LinuxNonRaspberryPi
 
+    elif my_platform == "pi":
+        ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_LinuxRaspberryPi
+
     elif my_platform == "mac":
         ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_Mac
 
@@ -416,7 +550,6 @@ if __name__ == '__main__':
     parametersfile = ""
     if ARGV_Dict["parametersfile"] != None:
         ParametersToBeLoaded_Directory_TO_BE_USED = str(ARGV_Dict["parametersfile"])
-        print("GOAT")
     else:
         ParametersToBeLoaded_Directory_TO_BE_USED = ParametersToBeLoaded_Directory_TO_BE_USED
 
@@ -487,14 +620,17 @@ if __name__ == '__main__':
     global USE_GUI_FLAG
     USE_GUI_FLAG = 1
 
+    global USE_KEYBOARD_FLAG
+    USE_KEYBOARD_FLAG = 1
+
     global USE_TABS_IN_GUI_FLAG
     USE_TABS_IN_GUI_FLAG = 1
 
     global USE_CameraStreamerClass_FLAG
     USE_CameraStreamerClass_FLAG = 1
 
-    global USE_MYPRINT_FLAG
-    USE_MYPRINT_FLAG = 1
+    global USE_MyPrint_FLAG
+    USE_MyPrint_FLAG = 1
     #################################################
     #################################################
 
@@ -503,8 +639,8 @@ if __name__ == '__main__':
     global SHOW_IN_GUI_CameraStreamerClass_FLAG
     SHOW_IN_GUI_CameraStreamerClass_FLAG = 1
 
-    global SHOW_IN_GUI_MYPRINT_FLAG
-    SHOW_IN_GUI_MYPRINT_FLAG = 1
+    global SHOW_IN_GUI_MyPrint_FLAG
+    SHOW_IN_GUI_MyPrint_FLAG = 1
     #################################################
     #################################################
 
@@ -524,19 +660,19 @@ if __name__ == '__main__':
     GUI_ROWSPAN_CameraStreamerClass = 1
     GUI_COLUMNSPAN_CameraStreamerClass = 1
 
-    global GUI_ROW_MYPRINT
-    global GUI_COLUMN_MYPRINT
-    global GUI_PADX_MYPRINT
-    global GUI_PADY_MYPRINT
-    global GUI_ROWSPAN_MYPRINT
-    global GUI_COLUMNSPAN_MYPRINT
-    GUI_ROW_MYPRINT = 2
+    global GUI_ROW_MyPrint
+    global GUI_COLUMN_MyPrint
+    global GUI_PADX_MyPrint
+    global GUI_PADY_MyPrint
+    global GUI_ROWSPAN_MyPrint
+    global GUI_COLUMNSPAN_MyPrint
+    GUI_ROW_MyPrint = 2
 
-    GUI_COLUMN_MYPRINT = 0
-    GUI_PADX_MYPRINT = 1
-    GUI_PADY_MYPRINT = 10
-    GUI_ROWSPAN_MYPRINT = 1
-    GUI_COLUMNSPAN_MYPRINT = 1
+    GUI_COLUMN_MyPrint = 0
+    GUI_PADX_MyPrint = 1
+    GUI_PADY_MyPrint = 10
+    GUI_ROWSPAN_MyPrint = 1
+    GUI_COLUMNSPAN_MyPrint = 1
     #################################################
     #################################################
 
@@ -589,8 +725,8 @@ if __name__ == '__main__':
     #################################################
     global MyPrint_ReubenPython2and3ClassObject
 
-    global MYPRINT_OPEN_FLAG
-    MYPRINT_OPEN_FLAG = -1
+    global MyPrint_OPEN_FLAG
+    MyPrint_OPEN_FLAG = -1
     #################################################
     #################################################
 
@@ -655,10 +791,16 @@ if __name__ == '__main__':
                                                                         #("RemoveFisheyeDistortionFromImage_Flag", RemoveFisheyeDistortionFromImage_Flag),
                                                                         #("CameraCalibrationParametersDict", CameraCalibrationParametersDict)
 
-    if USE_CameraStreamerClass_FLAG == 1:
+    if USE_CameraStreamerClass_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         try:
             CameraStreamerClass_ReubenPython2and3ClassObject = CameraStreamerClass_ReubenPython2and3Class(CameraStreamerClass_ReubenPython2and3ClassObject_setup_dict)
             CameraStreamerClass_OPEN_FLAG = CameraStreamerClass_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
+
+            #################################################
+            if USE_CameraStreamerClass_FLAG == 1 and CameraStreamerClass_OPEN_FLAG != 1:
+                print("Failed to open CameraStreamerClass_ReubenPython2and3Class.")
+                ExitProgram_Callback()
+            #################################################
 
         except:
             exceptions = sys.exc_info()[0]
@@ -669,17 +811,17 @@ if __name__ == '__main__':
 
     #################################################
     #################################################
-    if USE_MYPRINT_FLAG == 1:
+    if USE_MyPrint_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
 
-        MyPrint_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_MYPRINT_FLAG),
+        MyPrint_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_MyPrint_FLAG),
                                                                         ("root", Tab_MyPrint),
                                                                         ("UseBorderAroundThisGuiObjectFlag", 0),
-                                                                        ("GUI_ROW", GUI_ROW_MYPRINT),
-                                                                        ("GUI_COLUMN", GUI_COLUMN_MYPRINT),
-                                                                        ("GUI_PADX", GUI_PADX_MYPRINT),
-                                                                        ("GUI_PADY", GUI_PADY_MYPRINT),
-                                                                        ("GUI_ROWSPAN", GUI_ROWSPAN_MYPRINT),
-                                                                        ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_MYPRINT)])
+                                                                        ("GUI_ROW", GUI_ROW_MyPrint),
+                                                                        ("GUI_COLUMN", GUI_COLUMN_MyPrint),
+                                                                        ("GUI_PADX", GUI_PADX_MyPrint),
+                                                                        ("GUI_PADY", GUI_PADY_MyPrint),
+                                                                        ("GUI_ROWSPAN", GUI_ROWSPAN_MyPrint),
+                                                                        ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_MyPrint)])
 
         MyPrint_ReubenPython2and3ClassObject_setup_dict = dict([("NumberOfPrintLines", 10),
                                                                 ("WidthOfPrintingLabel", 200),
@@ -689,7 +831,13 @@ if __name__ == '__main__':
 
         try:
             MyPrint_ReubenPython2and3ClassObject = MyPrint_ReubenPython2and3Class(MyPrint_ReubenPython2and3ClassObject_setup_dict)
-            MYPRINT_OPEN_FLAG = MyPrint_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
+            MyPrint_OPEN_FLAG = MyPrint_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
+
+            #################################################
+            if MyPrint_OPEN_FLAG != 1:
+                print("Failed to open MyPrint_ReubenPython2and3ClassObject.")
+                ExitProgram_Callback()
+            #################################################
 
         except:
             exceptions = sys.exc_info()[0]
@@ -700,25 +848,21 @@ if __name__ == '__main__':
 
     #################################################
     #################################################
-    if USE_CameraStreamerClass_FLAG == 1 and CameraStreamerClass_OPEN_FLAG != 1:
-        print("Failed to open CameraStreamerClass_ReubenPython2and3Class.")
-        ExitProgram_Callback()
+    if USE_KEYBOARD_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
+        keyboard.on_press_key("esc", ExitProgram_Callback)
     #################################################
     #################################################
 
     #################################################
     #################################################
-    if USE_MYPRINT_FLAG == 1 and MYPRINT_OPEN_FLAG != 1:
-        print("Failed to open MyPrint_ReubenPython2and3ClassObject.")
-        ExitProgram_Callback()
+    if EXIT_PROGRAM_FLAG == 0:
+        print("Starting main loop 'test_program_for_CameraStreamerClass_ReubenPython2and3Class.")
+        StartingTime_MainLoopThread = getPreciseSecondsTimeStampString()
     #################################################
     #################################################
 
     #################################################
     #################################################
-    print("Starting main loop 'test_program_for_CameraStreamerClass_ReubenPython2and3Class.")
-    StartingTime_MainLoopThread = getPreciseSecondsTimeStampString()
-
     while(EXIT_PROGRAM_FLAG == 0):
 
         ###################################################
@@ -751,7 +895,7 @@ if __name__ == '__main__':
     #################################################
 
     #################################################
-    if MYPRINT_OPEN_FLAG == 1:
+    if MyPrint_OPEN_FLAG == 1:
         MyPrint_ReubenPython2and3ClassObject.ExitProgram_Callback()
     #################################################
 
