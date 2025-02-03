@@ -12,19 +12,19 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision H, 09/22/2023
+Software Revision I, 02/02/2025
 
-Verified working on: 
-
-Python 3.8, Windows 10 64-bit (no testing on Raspberry Pi or Mac testing yet)
-
-Python 2.7 support coming in the future.
+Verified working on:
+Python 3.12 for Windows 11 64-bit and Raspberry Pi Bullseye (Backend = "CAP_ANY", Camera = ELP USB).
 
 Helper files (related to but not critical for core class functionality):
 
 1. OpenCVwriteVideoFromImageSequence_ReubenPython2and3.py
+
 2. OpenCVgetFOURCCfromVideoCapture_ReubenPython2and3.py
+
 3. FFMPEG__ListDshowDevices_VideoAndAudio__ListOutputFormatsForVideoDevices_ReubenPython2and3.py
+
 4. OpenCVsetEnableStateOfWarnings_ReubenPython2and3.py
 
 ########################  
