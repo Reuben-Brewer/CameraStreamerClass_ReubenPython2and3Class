@@ -6,12 +6,15 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision I, 02/02/2025
+Software Revision J, 12/30/2025
 
-Verified working on: Python 2.7, 3.8 for Windows 10 64-bit.
+Verified working on: Python 3.12/13 for Windows 10/11 64-bit (Backend = "CAP_DSHOW") and Raspberry Pi Bullseye (Backend = "CAP_ANY").
 '''
 
 __author__ = 'reuben.brewer'
+
+##########################################################################################################
+##########################################################################################################
 
 ###################################################
 import os
@@ -21,6 +24,9 @@ import numpy
 import glob
 import traceback
 ###################################################
+
+##########################################################################################################
+##########################################################################################################
 
 ##########################################################################################################
 ##########################################################################################################
@@ -48,7 +54,7 @@ if __name__ == '__main__':
         fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')  # similar to H264
         #fourcc = cv2.VideoWriter_fourcc('a', 'v', 'c', '1') #similar to H264
 
-        ImageSequenceDirectoryFullPath = "G:\\My Drive\\CodeReuben\\ArucoTagDetectionFromCameraFeed_ReubenPython3Class\\ArucoTagImages"
+        ImageSequenceDirectoryFullPath = os.path.join(os.getcwd(), "SavedImages")
 
         ListOfFilterSubstrings = ["CAM0", "CAM1"]
         ##########################################################################################################
